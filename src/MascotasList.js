@@ -2,16 +2,29 @@ import React, { useEffect, useState } from "react";
 import { getMascotas } from "./api";
 
 const MascotasList = () => {
-  const [mascotas, setMascotas] = useState([]);
+  const [mascotas, setMascotas] = useState([]); // Todas las mascotas
+  const [searchTerm, setSearchTerm] = useState(""); // Término de búsqueda
+  const [filteredMascotas, setFilteredMascotas] = useState([]); // Mascotas filtradas
 
+  // Obtener las mascotas al cargar el componente
   useEffect(() => {
     const fetchData = async () => {
       const data = await getMascotas();
       setMascotas(data);
+      setFilteredMascotas(data); // Inicialmente, mostrar todas las mascotas
     };
 
     fetchData();
   }, []);
+
+  // Filtrar mascotas cuando cambia el término de búsqueda
+  useEffect(() => {
+    const results = mascotas.filter((mascota) =>
+      mascota.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      mascota.raza.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredMascotas(results);
+  }, [searchTerm, mascotas]);
 
   // Estilos en línea
   const styles = {
@@ -26,6 +39,15 @@ const MascotasList = () => {
       textShadow: "2px 2px 4px rgba(0, 0, 0, 0.1)",
       textAlign: "center",
       marginBottom: "2rem",
+    },
+    searchBox: {
+      marginBottom: "2rem",
+      padding: "10px",
+      width: "100%",
+      maxWidth: "400px",
+      borderRadius: "5px",
+      border: "1px solid #ccc",
+      fontSize: "1rem",
     },
     card: {
       border: "none",
@@ -56,8 +78,19 @@ const MascotasList = () => {
   return (
     <div style={styles.container}>
       <h2 style={styles.title}>🐾 Lista de Mascotas 🐾</h2>
+
+      {/* Campo de búsqueda */}
+      <input
+        type="text"
+        placeholder="Buscar por nombre o raza..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        style={styles.searchBox}
+      />
+
+      {/* Lista de mascotas filtradas */}
       <div className="row">
-        {mascotas.map((mascota) => (
+        {filteredMascotas.map((mascota) => (
           <div key={mascota.id_mascota} className="col-md-4 mb-4">
             <div
               style={styles.card}
@@ -88,5 +121,3 @@ const MascotasList = () => {
 };
 
 export default MascotasList;
-
-
